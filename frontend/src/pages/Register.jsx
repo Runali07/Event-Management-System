@@ -11,6 +11,7 @@ export default function Register() {
     password: ""
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [registering, setRegistering] = useState(false);
 
   const navigate = useNavigate();
 
@@ -22,11 +23,19 @@ export default function Register() {
     e.preventDefault();
 
     try {
+      setRegistering(true);
+
       await API.post("/auth/register", form);
-      toast.success("Registration successful");
-      navigate("/login");
+
+      toast.success("Registration successful 🎉");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 800);
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setRegistering(false);
     }
   };
 
@@ -45,6 +54,7 @@ export default function Register() {
             className="form-control auth-input mb-3"
             placeholder="Enter your name"
             onChange={handleChange}
+            value={form.name}
             required
           />
 
@@ -54,6 +64,7 @@ export default function Register() {
             className="form-control auth-input mb-3"
             placeholder="Enter your email"
             onChange={handleChange}
+            value={form.email}
             required
           />
 
@@ -64,6 +75,7 @@ export default function Register() {
               className="form-control auth-input"
               placeholder="Create a password"
               onChange={handleChange}
+              value={form.password}
               required
             />
             <button
@@ -75,8 +87,22 @@ export default function Register() {
             </button>
           </div>
 
-          <button className="w-100 auth-btn-green">
-            Register
+          <button
+            className="w-100 auth-btn-green d-flex align-items-center justify-content-center gap-2"
+            disabled={registering}
+          >
+            {registering ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Registering...
+              </>
+            ) : (
+              "Register"
+            )}
           </button>
         </form>
 

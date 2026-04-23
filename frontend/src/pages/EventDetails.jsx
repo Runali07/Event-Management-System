@@ -38,17 +38,20 @@ export default function EventDetails() {
     }
 
     try {
-      setRegistering(true);
+      setRegistering(true); // ✅ START LOADING
+
       await API.post(`/registrations/${id}`);
+
       toast.success("You are registered successfully 🎉");
 
       setTimeout(() => {
         navigate("/my-registrations");
       }, 800);
+
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
     } finally {
-      setRegistering(false);
+      setRegistering(false); // ✅ STOP LOADING
     }
   };
 
@@ -88,37 +91,37 @@ export default function EventDetails() {
 
           <div className="row mb-3">
             <div className="col-md-6">
-              <p>
-                <strong>📅 Date:</strong> {event.date}
-              </p>
-              <p>
-                <strong>⏰ Time:</strong> {event.time}
-              </p>
-              <p>
-                <strong>📍 Location:</strong> {event.location}
-              </p>
+              <p><strong>📅 Date:</strong> {event.date}</p>
+              <p><strong>⏰ Time:</strong> {event.time}</p>
+              <p><strong>📍 Location:</strong> {event.location}</p>
             </div>
 
             <div className="col-md-6">
-              <p>
-                <strong>💰 Price:</strong> ₹{event.price}
-              </p>
+              <p><strong>💰 Price:</strong> ₹{event.price}</p>
               <p>
                 <strong>🎟 Seats Left:</strong>{" "}
                 <span className="text-danger fw-bold">{event.seats}</span>
               </p>
-              <p>
-                <strong>🏷 Category:</strong> {event.category}
-              </p>
+              <p><strong>🏷 Category:</strong> {event.category}</p>
             </div>
           </div>
 
           <button
-            className="btn btn-success btn-lg"
+            className="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2"
             onClick={handleRegister}
             disabled={registering}
           >
-            {registering ? "Registering..." : "Register Now"}
+            {registering ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                ></span>
+                Registering...
+              </>
+            ) : (
+              "Register Now"
+            )}
           </button>
         </div>
       </div>
