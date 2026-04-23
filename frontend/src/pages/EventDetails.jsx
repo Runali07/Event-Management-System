@@ -6,16 +6,22 @@ import toast from "react-hot-toast";
 export default function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [registering, setRegistering] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
+        setLoading(true);
         const res = await API.get(`/events/${id}`);
         setEvent(res.data);
       } catch (error) {
         console.log("Error fetching event:", error);
         toast.error("Failed to load event details");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -32,18 +38,32 @@ export default function EventDetails() {
     }
 
     try {
+      setRegistering(true);
       await API.post(`/registrations/${id}`);
       toast.success("You are registered successfully 🎉");
-      navigate("/my-registrations");
+
+      setTimeout(() => {
+        navigate("/my-registrations");
+      }, 800);
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setRegistering(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container mt-5 text-center">
+        <h4>Loading event details...</h4>
+      </div>
+    );
+  }
 
   if (!event) {
     return (
       <div className="container mt-5 text-center">
-        <h4>Loading event...</h4>
+        <h4>Event not found.</h4>
       </div>
     );
   }
@@ -93,8 +113,12 @@ export default function EventDetails() {
             </div>
           </div>
 
-          <button className="btn btn-success btn-lg" onClick={handleRegister}>
-            Register Now
+          <button
+            className="btn btn-success btn-lg"
+            onClick={handleRegister}
+            disabled={registering}
+          >
+            {registering ? "Registering..." : "Register Now"}
           </button>
         </div>
       </div>
