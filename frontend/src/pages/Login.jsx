@@ -35,10 +35,10 @@ export default function Login() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h2 className="auth-title">Welcome Back</h2>
-        <p className="auth-subtitle">
-          Login to continue exploring and managing events.
-        </p>
+        <h2 className="auth-title">Welcome back to Eventora</h2>
+<p className="auth-subtitle">
+  Login to manage registrations and discover upcoming events.
+</p>
 
         <form onSubmit={handleSubmit}>
           <input

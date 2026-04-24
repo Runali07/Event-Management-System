@@ -13,14 +13,23 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3">
+    <nav className="navbar navbar-expand-lg custom-navbar">
       <div className="container">
-        <Link className="navbar-brand fw-bold fs-3" to="/">
-          EventSphere
+        <Link className="navbar-brand brand-logo" to="/">
+          Eventora
         </Link>
 
-        <div className="collapse navbar-collapse show">
-          <ul className="navbar-nav me-auto ms-3">
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarContent">
+          <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
             <li className="nav-item">
               <Link className="nav-link" to="/">Home</Link>
             </li>
@@ -42,27 +51,27 @@ export default function Navbar() {
                 <Link className="nav-link" to="/admin">Admin</Link>
               </li>
             )}
-          </ul>
 
-          <ul className="navbar-nav">
             {!user ? (
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/login">Login</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/register">Register</Link>
+                  <Link className="btn btn-brand ms-lg-2" to="/register">
+                    Get Started
+                  </Link>
                 </li>
               </>
             ) : (
               <>
                 <li className="nav-item">
-                  <span className="nav-link text-warning fw-semibold">
+                  <span className="nav-link user-greet">
                     Hi, {user.name}
                   </span>
                 </li>
                 <li className="nav-item">
-                  <button className="btn btn-danger btn-sm ms-2" onClick={logout}>
+                  <button className="btn btn-danger ms-lg-2" onClick={logout}>
                     Logout
                   </button>
                 </li>

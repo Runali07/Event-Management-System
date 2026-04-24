@@ -1,67 +1,91 @@
 const express = require("express");
 const Registration = require("../models/Registration");
 const Event = require("../models/Event");
+const User = require("../models/User");
+const sendRegistrationEmail = require("../utils/sendEmail");
 const auth = require("../middleware/authMiddleware");
 const allowRoles = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-/*
-  Register for an event
-*/
 router.post("/:eventId", auth, async (req, res) => {
-  console.time("TOTAL_REGISTER");
-
   try {
     const eventId = req.params.eventId;
     const userId = req.user.id;
 
-    console.time("findEvent");
-    const event = await Event.findById(eventId).select("_id");
-    console.timeEnd("findEvent");
-
+    const event = await Event.findById(eventId);
     if (!event) {
-      console.timeEnd("TOTAL_REGISTER");
       return res.status(404).json({ message: "Event not found" });
     }
 
-    console.time("checkExisting");
+    if (event.seats <= 0) {
+      return res.status(400).json({ message: "No seats available" });
+    }
+
     const existing = await Registration.findOne({
       user: userId,
       event: eventId,
     }).select("_id");
-    console.timeEnd("checkExisting");
 
     if (existing) {
-      console.timeEnd("TOTAL_REGISTER");
       return res
         .status(400)
         .json({ message: "Already registered for this event" });
     }
 
-    console.time("createRegistration");
     const registration = await Registration.create({
       user: userId,
       event: eventId,
     });
-    console.timeEnd("createRegistration");
 
-    console.timeEnd("TOTAL_REGISTER");
+    event.seats -= 1;
+    await event.save();
+
+    const user = await User.findById(userId).select("name email");
+    console.log("User found for email:", user);
+
+    if (user?.email) {
+      try {
+        console.log("Sending email to:", user.email);
+
+        await sendRegistrationEmail({
+  to: user.email,
+  name: user.name,
+  event,
+});
+
+        console.log("Email sent successfully");
+      } catch (mailError) {
+        console.log("Email sending failed:", mailError);
+      }
+    } else {
+      console.log("No user email found");
+    }
 
     res.status(201).json({
       message: "Registered successfully",
       registration,
     });
   } catch (error) {
-    console.timeEnd("TOTAL_REGISTER");
     console.log("Registration error:", error);
     res.status(500).json({ message: error.message });
   }
 });
 
-/*
-  Get logged-in user's registrations
-*/
+router.get("/check/:eventId", auth, async (req, res) => {
+  try {
+    const existing = await Registration.findOne({
+      user: req.user.id,
+      event: req.params.eventId,
+    }).select("_id");
+
+    res.json({ registered: !!existing });
+  } catch (error) {
+    console.log("Check registration error:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 router.get("/my/all", auth, async (req, res) => {
   try {
     const registrations = await Registration.find({ user: req.user.id })
@@ -75,9 +99,6 @@ router.get("/my/all", auth, async (req, res) => {
   }
 });
 
-/*
-  Get all registrations (admin only)
-*/
 router.get("/admin/all", auth, allowRoles("admin"), async (req, res) => {
   try {
     const registrations = await Registration.find()

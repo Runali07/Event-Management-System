@@ -42,10 +42,10 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h2 className="auth-title">Create Account</h2>
-        <p className="auth-subtitle">
-          Join EventSphere and start registering for events easily.
-        </p>
+        <h2 className="auth-title">Create your Eventora account</h2>
+    <p className="auth-subtitle">
+  Sign up and start exploring events, workshops, competitions, and more.
+    </p>
 
         <form onSubmit={handleSubmit}>
           <input
